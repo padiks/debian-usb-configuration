@@ -12,7 +12,7 @@ Users can choose which steps and software to apply according to their personal p
 2. [Hold Specific Packages](#2-hold-specific-packages)  
 3. [Update and Upgrade System](#3-update-and-upgrade-system)  
 4. [Install Common Utilities (Optional)](#4-install-common-utilities-optional)
-5. [Install Web Server & PHP (Optional)](#5-install-web-server-php-optional)
+5. [Install Web Server and PHP (Optional)](#5-install-web-server-and-php-optional)
 6. [Install Development Tools (Optional)](#6-install-development-tools-optional)
 
 ---
@@ -83,7 +83,7 @@ sudo apt install -y htop neofetch mate-themes okular qpdfview qcomicbook gnome-c
 
 ---
 
-## 5. Install Web Server & PHP (Optional)
+## 5. Install Web Server and PHP (Optional)
 
 ```bash
 sudo apt install -y php libapache2-mod-php php8.2-xml apache2
