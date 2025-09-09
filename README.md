@@ -175,9 +175,8 @@ sudo sysctl -p
 
 > **Note:** This setting allows the system to allocate more memory than physically available. It can help certain applications that rely on large memory allocations run more reliably. On low-RAM systems, however, it may increase memory pressure, so consider enabling swap if needed.
 
----
+> **Reference**: Adapted from [CodingTechRoom – Redis memory overcommit warning fix](https://codingtechroom.com/question/redis-memory-overcommit-warning-fix).
 
-**Reference**: Adapted from [CodingTechRoom – Redis memory overcommit warning fix](https://codingtechroom.com/question/redis-memory-overcommit-warning-fix).
 ---
 
 ## License
