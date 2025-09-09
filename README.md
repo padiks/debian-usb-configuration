@@ -16,6 +16,7 @@ Users can choose which steps and software to apply according to their personal p
 6. [Install Web Server and PHP (Optional)](#6-install-web-server-and-php-optional)
 7. [Install Development Tools (Optional)](#7-install-development-tools-optional)
 8. [Adjust Virtual Memory (Optional)](#8-adjust-virtual-memory-optional)
+9. [Disable Smartmontools Warning at Boot](#9-disable-smartmontools-warning-at-boot)
 
 ---
 
@@ -179,6 +180,17 @@ sudo sysctl -p
 > **Note:** This setting allows the system to allocate more memory than physically available. It can help certain applications that rely on large memory allocations run more reliably. On low-RAM systems, however, it may increase memory pressure, so consider enabling swap if needed.
 
 > **Reference**: Adapted from [CodingTechRoom – Redis memory overcommit warning fix](https://codingtechroom.com/question/redis-memory-overcommit-warning-fix).
+
+---
+
+## 9. Disable Smartmontools Warning at Boot
+
+If you see a red `smartmontools` message every time you boot, you can disable with:
+
+```bash
+sudo systemctl disable smartmontools
+sudo systemctl mask smartmontools
+```
 
 ---
 
