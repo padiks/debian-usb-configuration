@@ -17,6 +17,7 @@ Users can choose which steps and software to apply according to their personal p
 7. [Install Development Tools (Optional)](#7-install-development-tools-optional)
 8. [Adjust Virtual Memory (Optional)](#8-adjust-virtual-memory-optional)
 9. [Disable Smartmontools Warning at Boot](#9-disable-smartmontools-warning-at-boot)
+10. [Set Date and Time](#10-set-date-and-time)
 
 ---
 
@@ -190,6 +191,15 @@ If you see a red `smartmontools` message every time you boot, you can disable wi
 ```bash
 sudo systemctl disable smartmontools
 sudo systemctl mask smartmontools
+```
+---
+
+## 10. Set Date and Time
+
+TO manually set the system date and time use:
+
+```bash
+sudo timedatectl set-time "2025-09-09 17:57:00"
 ```
 
 ---
