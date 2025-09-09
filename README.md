@@ -10,8 +10,10 @@ Users can choose which steps and software to apply according to their personal p
 
 1. [Set Passwords](#1-set-passwords)  
 2. [Hold Specific Packages](#2-hold-specific-packages)  
-3. [Install Recommended Packages](#3-install-recommended-packages)  
-4. [System Tweaks and Customization](#4-system-tweaks-and-customization)  
+3. [Update and Upgrade System](#3-update-and-upgrade-system)  
+4. [Install Common Utilities (Optional)](#4-install-common-utilities)
+5. [Install Web Server & PHP (Optional)](#5-install-web-server-and-php)
+6. [Install Development Tools (Optional)](#6-install-development-tools)
 
 ---
 
