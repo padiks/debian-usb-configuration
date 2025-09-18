@@ -121,8 +121,12 @@ sudo nano /etc/apache2/ports.conf
 # Example: Listen 8080
 sudo chown -R $USER:$USER /var/www/html
 ln -s /var/www/html $HOME/Public/www
-chmod 755 $HOME/Public/www
-chmod 644 $HOME/Public/www/*
+
+chmod 755 /home/user/Public
+chmod -R 755 /var/www/html
+find /var/www/html -type f -exec chmod 644 {} \;
+sudo chown -R user:www-data /var/www/html
+
 sudo systemctl restart apache2
 ```
 
