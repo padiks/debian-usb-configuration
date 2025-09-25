@@ -18,6 +18,7 @@ Users can choose which steps and software to apply according to their personal p
 8. [Personal Bash Tweaks (Optional)](#8-personal-bash-tweaks-optional)
 9. [Disable Unnecessary Services at Boot (Optional)](#9-disable-unnecessary-services-at-boot-optional)
 10. [Set Date and Time](#10-set-date-and-time)
+11. [Live USB Performance and Wear Optimization (Optional)](#11-live-usb-performance-and-wear-optimization-optional)
 
 ---
 
@@ -284,6 +285,92 @@ To manually set the system date and time use:
 ```bash
 # sudo timedatectl set-time "YYYY-MM-DD HH:MM:SS"
 ```
+
+---
+
+# 11. Live USB Performance and Wear Optimization (Optional)
+
+These steps are optional and intended to improve performance and reduce wear on your Debian Live USB. This guide explains how to manually mount temporary files in RAM and enable compressed swap to make your Live USB faster and reduce write cycles.
+
+---
+
+## 11.1 Mount `/tmp` in RAM
+
+Mounting `/tmp` in RAM reduces USB writes and improves speed:
+
+```bash
+sudo mount -t tmpfs -o size=512M tmpfs /tmp
+```
+
+- `size=512M` sets the maximum size in RAM (adjust as needed).
+- This mount is **temporary** and will disappear after reboot unless added to `/etc/fstab`.
+
+---
+
+## 11.2 Mount `/var/log` in RAM
+
+Mounting `/var/log` in RAM prevents logs from constantly writing to the USB:
+
+```bash
+sudo mount -t tmpfs tmpfs /var/log
+```
+
+- Logs will disappear after reboot, which is usually acceptable on a Live USB.
+- For critical services that require persistent logs, consider syncing selected logs to persistent storage manually.
+
+---
+
+## 11.3 Enable ZRAM Swap (Optional)
+
+ZRAM provides **compressed swap in RAM**, improving performance on systems with limited memory.
+
+If `zram-tools` is installed:
+
+```bash
+sudo systemctl enable --now zramswap.service
+```
+
+- Once enabled, it automatically starts on each boot.
+- If not installed, you can install it via:
+
+```bash
+sudo apt install zram-tools
+```
+
+---
+
+## 11.4 Optional Script for Convenience
+
+You can create a script to quickly apply all optimizations for the current session:
+
+```bash
+#!/bin/bash
+# Live USB performance & wear optimization
+
+sudo mount -t tmpfs -o size=512M tmpfs /tmp
+sudo mount -t tmpfs tmpfs /var/log
+
+if systemctl is-active --quiet zramswap.service; then
+    echo "zram swap already active."
+else
+    sudo systemctl enable --now zramswap.service
+fi
+
+echo "Live USB optimizations applied."
+```
+
+- Save this as `liveusb-optimize.sh` and run with:
+
+```bash
+chmod +x liveusb-optimize.sh
+./liveusb-optimize.sh
+```
+
+> **Tip:** Running it manually helps you understand each step. `/tmp` and `/var/log` mounts disappear on reboot, but ZRAM remains active once enabled.
+
+---
+
+*End of Live USB Optimization Tutorial*
 
 ---
 
