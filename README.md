@@ -9,14 +9,14 @@ Users can choose which steps and software to apply according to their personal p
 ## Contents
 
 1. [Set Passwords](#1-set-passwords)
-2. [Hold Specific Packages](#2-hold-specific-packages)
+2. [Manage Specific Packages (Optional)](#2-manage-specific-packages-optional)
 3. [Update and Upgrade System](#3-update-and-upgrade-system)
 4. [Install Common Utilities (Optional)](#4-install-common-utilities-optional)
 5. [Install Okular and Remove KDE Connect (Optional)](#5-install-okular-and-remove-kde-connect-optional)
 6. [Install Web Server and PHP (Optional)](#6-install-web-server-and-php-optional)
 7. [Install Development Tools (Optional)](#7-install-development-tools-optional)
-8. [Adjust Virtual Memory (Optional)](#8-adjust-virtual-memory-optional)
-9. [Disable Smartmontools Warning at Boot](#9-disable-smartmontools-warning-at-boot)
+8. [Personal Bash Tweaks (Optional)](#8-personal-bash-tweaks-optional)
+9. [Disable Unnecessary Services at Boot (Optional)](#9-disable-unnecessary-services-at-boot-optional)
 10. [Set Date and Time](#10-set-date-and-time)
 
 ---
@@ -44,9 +44,15 @@ sudo passwd root   # Set root password
 
 ---
 
-## 2. Hold Specific Packages
+## 2. Manage Specific Packages (Optional)
 
-To prevent certain applications from being upgraded automatically:
+> **Note:** On a Debian 12.4 Live USB (see [Part 1 of this guide on GitHub](https://github.com/padiks/debian-usb-with-persistence)), some applications like Firefox, LibreOffice, and GIMP are pre-installed. Updating and upgrading the system may also upgrade these apps and the system to Debian 12.12, which can take a lot of time. Using `apt-mark hold` prevents these specific packages from being upgraded, saving time.  
+
+You have two ways to manage these pre-installed packages:
+
+### Option 1: Prevent Automatic Upgrades
+
+Use `apt-mark hold` to stop specific packages from being upgraded during system updates:
 
 ```bash
 sudo apt-mark hold firefox-esr-l10n-*
@@ -55,7 +61,19 @@ sudo apt-mark hold gimp*
 sudo apt-mark showhold
 ```
 
-> **Note:** On a Debian 12.4 Live USB (see [Part 1 of this guide on GitHub](https://github.com/padiks/debian-usb-with-persistence)), some applications like Firefox, LibreOffice, and GIMP are pre-installed. Updating and upgrading the system may also upgrade these apps and the system to Debian 12.12, which can take a lot of time. Using `apt-mark hold` prevents these specific packages from being upgraded, saving time.
+### Option 2: Remove Unused Packages
+
+If you prefer to remove certain applications entirely (for example, if you only use Gnumeric), you can do so:
+
+```bash
+sudo apt remove --purge libreoffice*      # Keep only Gnumeric
+sudo apt remove --purge gimp*
+sudo apt remove firefox-esr-l10n-*
+sudo apt clean
+sudo apt autoremove
+```
+
+> **Tip:** Removing unused packages frees up disk space and can speed up future updates.
 
 ---
 
@@ -71,6 +89,8 @@ Check system info:
 ```bash
 uname -a
 cat /etc/debian_version
+stat -c %w /
+lsblk -o NAME,SIZE,MODEL,MOUNTPOINT
 ```
 
 ---
@@ -80,7 +100,7 @@ cat /etc/debian_version
 Examples of utilities you might install:
 
 ```bash
-sudo apt install -y htop neofetch mate-themes qpdfview qcomicbook gnome-calculator gnome-screenshot audacious vlc easytag speedtest-cli filezilla transmission bluefish falkon lynx wget zip
+sudo apt install -y htop neofetch mate-themes qpdfview qcomicbook gnumeric gnome-calculator gnome-screenshot audacious vlc easytag speedtest-cli filezilla transmission bluefish falkon lynx wget zip
 ```
 
 > Users can pick and choose packages based on their needs.
@@ -110,25 +130,47 @@ sudo apt autoremove -y
 ## 6. Install Web Server and PHP (Optional)
 
 ```bash
-sudo apt install -y php libapache2-mod-php php8.2-xml apache2
+# Install Apache, PHP, and XML module
+sudo apt install -y apache2 php libapache2-mod-php php8.2-xml
+
+# Verify installed PHP packages
 apt list --installed php*
 ```
 
-Adjust Apache settings:
+### Adjust Apache settings
 
 ```bash
+# Edit Apache ports configuration if you want to change the listening port
 sudo nano /etc/apache2/ports.conf
-# Example: Listen 8080
-sudo chown -R $USER:$USER /var/www/html
+# Example inside ports.conf: Listen 8080
+
+# Set ownership of web files to your user and www-data group
+sudo chown -R $USER:www-data /var/www/html
+
+# Create a symbolic link from your web folder to ~/Public/www (optional)
 ln -s /var/www/html $HOME/Public/www
 
-chmod 755 /home/user/Public
-chmod -R 755 /var/www/html
-find /var/www/html -type f -exec chmod 644 {} \;
-sudo chown -R user:www-data /var/www/html
+# Set directory permissions to 755
+sudo find /var/www/html -type d -exec chmod 755 {} \;
 
+# Set file permissions to 644
+sudo find /var/www/html -type f -exec chmod 644 {} \;
+
+# Ensure public directory is accessible
+chmod 755 $HOME/Public
+
+# Enable Apache mod_rewrite for URL rewriting
+sudo a2enmod rewrite
+
+# Restart Apache to apply changes
 sudo systemctl restart apache2
 ```
+
+### ? Notes:
+- $USER is dynamic and ensures commands work for any logged-in user.
+- Symbolic link creation is optional; it helps access web files via ~/Public/www.
+- Permissions and ownership follow common best practices for a development environment.
+- Apache must be restarted for mod_rewrite changes to take effect.
 
 ---
 
@@ -160,50 +202,87 @@ cd
 
 ---
 
-## 8. Adjust Virtual Memory (Optional)
+## 8. Personal Bash Tweaks (Optional)
 
-On a Debian Live USB, certain memory settings can help prevent out-of-memory errors, especially when running applications that rely on large memory allocations.
+Customize your shell environment by editing your `.bashrc`:
 
-Open the sysctl configuration file:
-
-```
-sudo nano /etc/sysctl.conf
-```
-
-Add or modify the following line:
-
-```
-vm.overcommit_memory = 1
+```bash
+# Open .bashrc in your home directory
+cd
+nano .bashrc
 ```
 
-Apply the change immediately:
+Add your preferred aliases:
 
+```bash
+# Quick disk info
+alias d="lsblk -o NAME,SIZE,MODEL,MOUNTPOINT"
+
+# Clear history and exit
+alias h="> ~/.bash_history && history -c && exit"
+
+# Show IP addresses
+alias i="hostname -I && ip -br -c addr show"
+
+# Reboot system
+alias r="sudo reboot"
+
+# List running services
+alias s="systemctl list-units --type=service --state=running"
+
+# Show system and Debian version
+alias v="uname -a && cat /etc/debian_version"
+
+# Zip a folder
+alias t="zip -r file.zip folder"
+
+# Shutdown system
+alias z="sudo shutdown -h now"
 ```
-sudo sysctl -p
+
+Customize your prompt (PS1) with colors:
+
+```bash
+# Green current directory in prompt
+PS1='\[\e[1;32m\]${PWD} \$ \[\e[0m\]'
 ```
 
-> **Note:** This setting allows the system to allocate more memory than physically available. It can help certain applications that rely on large memory allocations run more reliably. On low-RAM systems, however, it may increase memory pressure, so consider enabling swap if needed.
+> **Note:** Place these lines at the **end of your `.bashrc` file** to ensure they override previous settings.
 
-> **Reference**: Adapted from [CodingTechRoom – Redis memory overcommit warning fix](https://codingtechroom.com/question/redis-memory-overcommit-warning-fix).
+After editing, reload `.bashrc` to apply changes:
+
+```bash
+source ~/.bashrc
+```
 
 ---
 
-## 9. Disable Smartmontools Warning at Boot
+## 9. Disable Unnecessary Services at Boot (Optional)
 
-If you see a red `smartmontools` message every time you boot, you can disable with:
+On a Debian 12.x Live USB with persistence, you may see messages or consume resources for services you don’t need, like `smartmontools`, `cups`, `avahi-daemon`, `bluetooth`, and `ModemManager`.
+
+### Stop services immediately:
 
 ```bash
-sudo systemctl disable smartmontools
-sudo systemctl mask smartmontools
+sudo systemctl stop cups avahi-daemon bluetooth ModemManager smartmontools
 ```
+
+### Prevent them from starting at boot:
+
+```bash
+sudo systemctl disable cups avahi-daemon bluetooth ModemManager smartmontools
+```
+
+> **Note:** This is safe for a Live USB setup. You can re-enable any service later if needed using `sudo systemctl enable <service>`.
+
 ---
 
 ## 10. Set Date and Time
 
-TO manually set the system date and time use:
+To manually set the system date and time use:
 
 ```bash
-sudo timedatectl set-time "2025-09-09 17:57:00"
+# sudo timedatectl set-time "YYYY-MM-DD HH:MM:SS"
 ```
 
 ---
